@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
+contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
     using SafeMath for uint256;
 
@@ -32,19 +32,24 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
     uint256 public startDate;
     uint256 public releaseInterval = 30 days;
+    uint256 public idoReleaseInterval = 14 days;
+    
+    uint constant SECONDS_PER_DAY = 24 * 60 * 60;
+    uint constant SECONDS_PER_HOUR = 60 * 60;
+    uint constant SECONDS_PER_MINUTE = 60;
+    int constant OFFSET19700101 = 2440588;
 
     struct Vesting {
-        uint256 start;
+        uint256 vestingTime;
         uint256 period;
         uint256 amount;
+        uint256 claimed;
     }
 
-    mapping(address => Vesting[]) public vestingler;
-
-    mapping(address => Vesting) public vestings; //neew
+    mapping(address => Vesting) public vestings; 
     mapping(address => bool) public blacklist;
 
-    constructor( ) ERC20("MyToken", "MTK") {
+    constructor( ) ERC20("ENERGREEN", "ENGRN") {
 
 
         startDate = block.timestamp;
@@ -59,94 +64,113 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
 
 
-        //neew
-
         vestings[marketingAddress] = Vesting({
-            start: startDate + releaseInterval, 
+            vestingTime: startDate + releaseInterval, 
             period: 100, 
-            amount: 350000 * (10 ** 18)
+            amount: 350000 * (10 ** 18),
+            claimed: 0
         });
 
         vestings[reserveAddress] = Vesting({
-            start: startDate + releaseInterval, 
+            vestingTime: startDate + releaseInterval, 
             period: 100, 
-            amount: 150000 * (10 ** 18)
+            amount: 250000 * (10 ** 18),
+            claimed: 0
         });
 
         vestings[privateSale1Address] = Vesting({
-            start: startDate + 10 * releaseInterval, 
+            vestingTime: startDate + 10 * releaseInterval, 
             period: 12, 
-            amount: 55416 * (10 ** 18)
+            amount: 55416666666666666666666,
+            claimed: 0
         });
 
         vestings[privateSale2Address] = Vesting({
-            start: startDate + 9 * releaseInterval, 
+            vestingTime: startDate + 9 * releaseInterval, 
             period: 12, 
-            amount: 63333 * (10 ** 18)
+            amount: 63333333333333333333333,
+            claimed: 0
         });
 
         vestings[idoAddress] = Vesting({
-            start: startDate + 2 * releaseInterval, 
+            vestingTime: startDate + 2 * releaseInterval, 
             period: 12, 
-            amount: 80000 * (10 ** 18)
+            amount: 80000 * (10 ** 18),
+            claimed: 0
         });
 
         vestings[teamAddress] = Vesting({
-            start: startDate + 13 * releaseInterval, 
+            vestingTime: startDate + 13 * releaseInterval, 
             period: 72, 
-            amount: 300000 * (10 ** 18)
+            amount: 300000 * (10 ** 18),
+            claimed: 0
         });
 
         vestings[advisorAddress] = Vesting({
-            start: startDate + 7 * releaseInterval, 
+            vestingTime: startDate + 7 * releaseInterval, 
             period: 30, 
-            amount: 270833 * (10 ** 18)
+            amount: 270833333333333333333333 ,
+            claimed: 0
         });
 
     }
 
 
-    function getDaysInMonth(uint256 month, uint256 year) public pure returns (uint256) {
-        if (month == 2) {
-            if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-                return 29;
-            } else {
-                return 28;
-            }
-        } else if (month == 4 || month == 6 || month == 9 || month == 11) {
-            return 30;
-        } else {
-            return 31;
-        }
-    }
+function getNextVestingDate(uint256 currentVestingDate) public pure returns (uint256 ) {
+    uint256 vestingMonth ;
+    uint256 vestingYear ;
+    (vestingYear, vestingMonth , ) = timestampToDate(currentVestingDate) ; 
 
-function getNextVestingDate(uint256 currentVestingDate) public view returns (uint256) {
-    uint256 currentMonth = (block.timestamp.sub(currentVestingDate)).div(30 days).add(1);
-    uint256 currentYear = startDate.div(365 days);
-
-    uint256 daysInMonth = getDaysInMonth(currentMonth, currentYear);
-    uint256 nextVestingDate = currentVestingDate.add(daysInMonth.mul(1 days));
+    uint256 daysInMonth = getDaysInMonth(vestingMonth, vestingYear);
+    uint256 nextVestingDate = timestampFromDate(vestingYear , vestingMonth, daysInMonth);
 
     return nextVestingDate;
 }
 
-function getMonthAndYear(uint256 currentVestingDate) public view returns (uint256) {
-    uint256 currentMonth = (block.timestamp.sub(currentVestingDate)).div(30 days).add(1);
-    uint256 currentYear = startDate.div(365 days);
 
-    uint256 daysInMonth = getDaysInMonth(currentMonth, currentYear);
-    uint256 nextVestingDate = currentVestingDate.add(daysInMonth.mul(1 days));
 
-    return nextVestingDate;
+
+
+function releaseVesting (address vestingAddress) public onlyOwner nonReentrant {
+
+
+Vesting storage vesting = vestings[vestingAddress] ;
+
+require( block.timestamp >= vesting.vestingTime , "Vesting time is not now." ) ;
+require( vesting.period > 0 , "Vesting is over for this address" ) ;
+
+
+
+uint256 vestingMonth ;
+uint256 vestingYear ;
+
+( vestingYear , vestingMonth , ) = timestampToDate(vesting.vestingTime) ;
+
+if (vestingMonth != 12) {
+    vestingMonth += 1;
 }
+else {
+    vestingMonth = 1;
+    vestingYear += 1;
+} 
 
-// TRIAL
+uint256 nextVestingTime = timestampFromDate(vestingYear, vestingMonth , 28) ; // Every month has 28. day
+nextVestingTime = getNextVestingDate(nextVestingTime);
 
-    function getVestingsCount(address _user) public view returns (Vesting memory) {
+vesting.vestingTime = nextVestingTime;
+vesting.period -= 1 ;
+vesting.claimed += 1 ;
 
-    return vestings[_user] ;
+_transfer(address(this), vestingAddress, vesting.amount);
 
-    }
+
+
+
+
+
+} 
+
+
 
 
   function releaseVestedTokens(address beneficiary) public onlyOwner nonReentrant {
@@ -154,14 +178,14 @@ function getMonthAndYear(uint256 currentVestingDate) public view returns (uint25
 
             Vesting storage vesting = vestings[beneficiary];
 
-            while (block.timestamp >= getNextVestingDate(vesting.start)) {
+            while (block.timestamp >= getNextVestingDate(vesting.vestingTime)) {
                 uint256 toRelease = vesting.amount;
                 if (vesting.period == 0) {
                     break;
                 }
 
                 totalAmount += toRelease;
-                vesting.start = getNextVestingDate(vesting.start);
+                vesting.vestingTime = getNextVestingDate(vesting.vestingTime);
                 vesting.period -= 1;
             }
 
@@ -173,45 +197,64 @@ function getMonthAndYear(uint256 currentVestingDate) public view returns (uint25
 
 
 
+//Pure functions
+    function _daysToDate(uint _days) internal pure returns (uint year, uint month, uint day) {
+        int __days = int(_days);
 
+        int L = __days + 68569 + OFFSET19700101;
+        int N = 4 * L / 146097;
+        L = L - (146097 * N + 3) / 4;
+        int _year = 4000 * (L + 1) / 1461001;
+        L = L - 1461 * _year / 4 + 31;
+        int _month = 80 * L / 2447;
+        int _day = L - 2447 * _month / 80;
+        L = _month / 11;
+        _month = _month + 2 - 12 * L;
+        _year = 100 * (N - 49) + _year + L;
 
-//Release vesting changers
-
-
-    function setReleaseInterval(uint256 interval) public onlyOwner {
-        releaseInterval = interval;
+        year = uint(_year);
+        month = uint(_month);
+        day = uint(_day);
     }
 
-    function updateVesting(
-        address beneficiary,
-        uint256 start,
-        uint256 period,
-        uint256 amount
-    ) public onlyOwner {
+        function _daysFromDate(uint year, uint month, uint day) internal pure returns (uint _days) {
+        require(year >= 1970);
+        int _year = int(year);
+        int _month = int(month);
+        int _day = int(day);
 
+        int __days = _day
+          - 32075
+          + 1461 * (_year + 4800 + (_month - 14) / 12) / 4
+          + 367 * (_month - 2 - (_month - 14) / 12 * 12) / 12
+          - 3 * ((_year + 4900 + (_month - 14) / 12) / 100) / 4
+          - OFFSET19700101;
 
-        vestings[beneficiary].start = start;
-        vestings[beneficiary].period = period;
-        vestings[beneficiary].amount = amount;
-    }
-
-    function addVesting(
-        address beneficiary,
-        uint256 start,
-        uint256 period,
-        uint256 amount
-    ) public onlyOwner {
-
-        vestings[beneficiary] = Vesting({start: start, period: period, amount: amount});
-    }
-
-    function removeVesting(address beneficiary) public onlyOwner {
-
-
-        delete vestings[beneficiary];
+        _days = uint(__days);
     }
 
 
+    function timestampToDate(uint timestamp) public pure returns (uint year, uint month, uint day) {
+        (year, month, day) = _daysToDate(timestamp / SECONDS_PER_DAY);
+    }
+
+    function timestampFromDate(uint year, uint month, uint day) public pure returns (uint timestamp) {
+        timestamp = _daysFromDate(year, month, day) * SECONDS_PER_DAY;
+    }
+
+    function getDaysInMonth(uint256 month, uint256 year) private pure returns (uint256) {
+    if (month == 2) {
+        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+            return 29;
+        } else {
+            return 28;
+        }
+    } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+        return 30;
+    } else {
+        return 31;
+    }
+}
 
 // Blacklist related
   function addToBlacklist(address user) public onlyOwner {
@@ -227,6 +270,7 @@ function getMonthAndYear(uint256 currentVestingDate) public view returns (uint25
         require(!blacklist[to], "Token transfer not allowed: destination address is blacklisted");       
         super._beforeTokenTransfer(from, to, amount);
     }
+
 
 }
 

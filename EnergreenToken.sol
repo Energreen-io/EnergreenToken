@@ -6,8 +6,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
+
+    using SafeMath for uint256;
+
     uint256 private constant TOTAL_SUPPLY = 200000000 * (10 ** 18);
 
     uint256 private constant INITIAL_STAKING = 110000000 * (10 ** 18);
@@ -22,7 +26,7 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     address public privateSale1Address = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
     address public privateSale2Address = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
     address public marketingAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public reserveAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
+    address public reserveAddress = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2 ;
     address public teamAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
     address public advisorAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
 
@@ -35,7 +39,9 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         uint256 amount;
     }
 
-    mapping(address => Vesting[]) public vestings;
+    mapping(address => Vesting[]) public vestingler;
+
+    mapping(address => Vesting) public vestings; //neew
     mapping(address => bool) public blacklist;
 
     constructor( ) ERC20("MyToken", "MTK") {
@@ -52,13 +58,51 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         _transfer(address(this), privateSale2Address, INITIAL_PRIVATE_SALE_2);
 
 
-        vestings[marketingAddress].push(Vesting({start: startDate + releaseInterval, period: 100, amount: 350000 * (10 ** 18)}));
-        vestings[reserveAddress].push(Vesting({start: startDate + releaseInterval, period: 100, amount: 150000 * (10 ** 18)}));
-        vestings[privateSale1Address].push(Vesting({start: startDate + 10 * releaseInterval, period: 12, amount: 55416 * (10 ** 18)}));
-        vestings[privateSale2Address].push(Vesting({start: startDate + 9 * releaseInterval, period: 12, amount: 63333 * (10 ** 18)}));
-        vestings[idoAddress].push(Vesting({start: startDate + 2 * releaseInterval, period: 12, amount: 80000 * (10 ** 18)}));
-        vestings[teamAddress].push(Vesting({start: startDate + 13 * releaseInterval, period: 72, amount: 300000 * (10 ** 18)}));
-        vestings[advisorAddress].push(Vesting({start: startDate + 7 * releaseInterval, period: 30, amount: 270833 * (10 ** 18)}));
+
+        //neew
+
+        vestings[marketingAddress] = Vesting({
+            start: startDate + releaseInterval, 
+            period: 100, 
+            amount: 350000 * (10 ** 18)
+        });
+
+        vestings[reserveAddress] = Vesting({
+            start: startDate + releaseInterval, 
+            period: 100, 
+            amount: 150000 * (10 ** 18)
+        });
+
+        vestings[privateSale1Address] = Vesting({
+            start: startDate + 10 * releaseInterval, 
+            period: 12, 
+            amount: 55416 * (10 ** 18)
+        });
+
+        vestings[privateSale2Address] = Vesting({
+            start: startDate + 9 * releaseInterval, 
+            period: 12, 
+            amount: 63333 * (10 ** 18)
+        });
+
+        vestings[idoAddress] = Vesting({
+            start: startDate + 2 * releaseInterval, 
+            period: 12, 
+            amount: 80000 * (10 ** 18)
+        });
+
+        vestings[teamAddress] = Vesting({
+            start: startDate + 13 * releaseInterval, 
+            period: 72, 
+            amount: 300000 * (10 ** 18)
+        });
+
+        vestings[advisorAddress] = Vesting({
+            start: startDate + 7 * releaseInterval, 
+            period: 30, 
+            amount: 270833 * (10 ** 18)
+        });
+
     }
 
 
@@ -76,29 +120,42 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         }
     }
 
-    function getNextVestingDate(uint256 currentVestingDate) public view returns (uint256) {
-        uint256 currentMonth = (block.timestamp - currentVestingDate) / (30 days) + 1;
-        uint256 currentYear = startDate / (365 days);
+function getNextVestingDate(uint256 currentVestingDate) public view returns (uint256) {
+    uint256 currentMonth = (block.timestamp.sub(currentVestingDate)).div(30 days).add(1);
+    uint256 currentYear = startDate.div(365 days);
 
-        uint256 daysInMonth = getDaysInMonth(currentMonth, currentYear);
-        uint256 nextVestingDate = currentVestingDate + daysInMonth * 1 days;
+    uint256 daysInMonth = getDaysInMonth(currentMonth, currentYear);
+    uint256 nextVestingDate = currentVestingDate.add(daysInMonth.mul(1 days));
 
-        return nextVestingDate;
+    return nextVestingDate;
+}
+
+function getMonthAndYear(uint256 currentVestingDate) public view returns (uint256) {
+    uint256 currentMonth = (block.timestamp.sub(currentVestingDate)).div(30 days).add(1);
+    uint256 currentYear = startDate.div(365 days);
+
+    uint256 daysInMonth = getDaysInMonth(currentMonth, currentYear);
+    uint256 nextVestingDate = currentVestingDate.add(daysInMonth.mul(1 days));
+
+    return nextVestingDate;
+}
+
+// TRIAL
+
+    function getVestingsCount(address _user) public view returns (Vesting memory) {
+
+    return vestings[_user] ;
+
     }
 
 
-
-
-   function releaseVestedTokens(address beneficiary) public onlyOwner {
+  function releaseVestedTokens(address beneficiary) public onlyOwner nonReentrant {
         uint256 totalAmount = 0;
-        uint256 length = vestings[beneficiary].length;
 
-        for (uint256 i = 0; i < length; i++) {
-            Vesting storage vesting = vestings[beneficiary][i];
+            Vesting storage vesting = vestings[beneficiary];
 
             while (block.timestamp >= getNextVestingDate(vesting.start)) {
                 uint256 toRelease = vesting.amount;
-
                 if (vesting.period == 0) {
                     break;
                 }
@@ -107,11 +164,13 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
                 vesting.start = getNextVestingDate(vesting.start);
                 vesting.period -= 1;
             }
-        }
+
 
         require(totalAmount > 0, "No vested tokens to release");
         _transfer(address(this), beneficiary, totalAmount);
     }
+
+
 
 
 
@@ -125,16 +184,15 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
     function updateVesting(
         address beneficiary,
-        uint256 index,
         uint256 start,
         uint256 period,
         uint256 amount
     ) public onlyOwner {
-        require(index < vestings[beneficiary].length, "Invalid index");
 
-        vestings[beneficiary][index].start = start;
-        vestings[beneficiary][index].period = period;
-        vestings[beneficiary][index].amount = amount;
+
+        vestings[beneficiary].start = start;
+        vestings[beneficiary].period = period;
+        vestings[beneficiary].amount = amount;
     }
 
     function addVesting(
@@ -143,19 +201,14 @@ contract MyToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         uint256 period,
         uint256 amount
     ) public onlyOwner {
-        vestings[beneficiary].push(Vesting({start: start, period: period, amount: amount}));
+
+        vestings[beneficiary] = Vesting({start: start, period: period, amount: amount});
     }
 
-    function removeVesting(address beneficiary, uint256 index) public onlyOwner {
-        require(index < vestings[beneficiary].length, "Invalid index");
+    function removeVesting(address beneficiary) public onlyOwner {
 
-        uint256 lastIndex = vestings[beneficiary].length - 1;
 
-        if (index != lastIndex) {
-            vestings[beneficiary][index] = vestings[beneficiary][lastIndex];
-        }
-
-        vestings[beneficiary].pop();
+        delete vestings[beneficiary];
     }
 
 

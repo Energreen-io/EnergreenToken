@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -12,7 +11,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
     using SafeMath for uint256;
 
-    uint256 private constant TOTAL_SUPPLY = 200000000 * (10 ** 18);
+    uint256 public constant TOTAL_SUPPLY = 200000000 * (10 ** 18);
 
     uint256 private constant INITIAL_STAKING = 110000000 * (10 ** 18);
     uint256 private constant INITIAL_LIQUIDITY = 3000000 * (10 ** 18);
@@ -20,20 +19,17 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     uint256 private constant INITIAL_PRIVATE_SALE_1 = 35000 * (10 ** 18);
     uint256 private constant INITIAL_PRIVATE_SALE_2 = 40000 * (10 ** 18);
 
-    address public stakingAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public liquidityAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public idoAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public privateSale1Address = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public privateSale2Address = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public marketingAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public reserveAddress = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2 ;
-    address public teamAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public advisorAddress = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
+    address public constant stakingAddress = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db ;
+    address public constant liquidityAddress = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB ;
+    address public constant idoAddress = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2 ;
+    address public constant privateSale1Address = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db ;
+    address public constant privateSale2Address = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
+    address public constant marketingAddress = 0x742d35Cc6634C0532925a3b844Bc454e4438f44e ;
+    address public constant reserveAddress = 0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B ;
+    address public constant teamAddress = 0xE853c56864A2ebe4576a807D26Fdc4A0adA51919 ;
+    address public constant advisorAddress = 0x1aE0EA34a72D944a8C7603FfB3eC30a6669E454C ;
 
     uint256 public startDate;
-    uint256 public releaseInterval = 30 days;
-    uint256 public idoReleaseInterval = 14 days;
-    
     uint constant SECONDS_PER_DAY = 24 * 60 * 60;
     uint constant SECONDS_PER_HOUR = 60 * 60;
     uint constant SECONDS_PER_MINUTE = 60;
@@ -51,7 +47,6 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
     constructor( ) ERC20("ENERGREEN", "ENGRN") {
 
-
         startDate = block.timestamp;
 
         _mint(address(this), TOTAL_SUPPLY);
@@ -62,52 +57,50 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         _transfer(address(this), privateSale1Address, INITIAL_PRIVATE_SALE_1);
         _transfer(address(this), privateSale2Address, INITIAL_PRIVATE_SALE_2);
 
-
-
         vestings[marketingAddress] = Vesting({
-            vestingTime: startDate + releaseInterval, 
+            vestingTime: getNextVestingMonth(1 , startDate) , 
             period: 100, 
             amount: 350000 * (10 ** 18),
             claimed: 0
         });
 
         vestings[reserveAddress] = Vesting({
-            vestingTime: startDate + releaseInterval, 
+            vestingTime: getNextVestingMonth(1 , startDate), 
             period: 100, 
             amount: 250000 * (10 ** 18),
             claimed: 0
         });
 
         vestings[privateSale1Address] = Vesting({
-            vestingTime: startDate + 10 * releaseInterval, 
+            vestingTime: getNextVestingMonth(10 , startDate), 
             period: 12, 
             amount: 55416666666666666666666,
             claimed: 0
         });
 
         vestings[privateSale2Address] = Vesting({
-            vestingTime: startDate + 9 * releaseInterval, 
+            vestingTime: getNextVestingMonth(9 , startDate), 
             period: 12, 
             amount: 63333333333333333333333,
             claimed: 0
         });
 
         vestings[idoAddress] = Vesting({
-            vestingTime: startDate + 2 * releaseInterval, 
-            period: 12, 
-            amount: 80000 * (10 ** 18),
+            vestingTime: getNextVestingMonth(2 , startDate), 
+            period: 200, 
+            amount: 4600 * (10 ** 18),
             claimed: 0
         });
 
         vestings[teamAddress] = Vesting({
-            vestingTime: startDate + 13 * releaseInterval, 
+            vestingTime: getNextVestingMonth(13 , startDate), 
             period: 72, 
             amount: 300000 * (10 ** 18),
             claimed: 0
         });
 
         vestings[advisorAddress] = Vesting({
-            vestingTime: startDate + 7 * releaseInterval, 
+            vestingTime: getNextVestingMonth(7 , startDate), 
             period: 30, 
             amount: 270833333333333333333333 ,
             claimed: 0
@@ -115,89 +108,49 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
     }
 
+    // VESTING LOCK RELEASE
+    function releaseVesting (address vestingAddress) public onlyOwner nonReentrant {
 
-function getNextVestingDate(uint256 currentVestingDate) public pure returns (uint256 ) {
-    uint256 vestingMonth ;
-    uint256 vestingYear ;
-    (vestingYear, vestingMonth , ) = timestampToDate(currentVestingDate) ; 
+        Vesting storage vesting = vestings[vestingAddress] ;
 
-    uint256 daysInMonth = getDaysInMonth(vestingMonth, vestingYear);
-    uint256 nextVestingDate = timestampFromDate(vestingYear , vestingMonth, daysInMonth);
+        require( block.timestamp >= vesting.vestingTime , "Vesting time is not now." ) ;
+        require( vesting.period > 0 , "Vesting is over for this address" ) ;
 
-    return nextVestingDate;
-}
+        uint256 nextVestingTime ;
 
+        if (vestingAddress == idoAddress) {
+            nextVestingTime = vesting.vestingTime + 1 weeks ; }                 // Adding 1 week for IDO vesting 
+        else {
+            nextVestingTime = getNextVestingMonth(1 , vesting.vestingTime) ;    // Vesting day is same for every month except IDO sale.
+        }
 
+        vesting.vestingTime = nextVestingTime;
+        vesting.period -= 1 ;
+        vesting.claimed += 1 ;
 
+        _transfer(address(this), vestingAddress, vesting.amount);
 
-
-function releaseVesting (address vestingAddress) public onlyOwner nonReentrant {
-
-
-Vesting storage vesting = vestings[vestingAddress] ;
-
-require( block.timestamp >= vesting.vestingTime , "Vesting time is not now." ) ;
-require( vesting.period > 0 , "Vesting is over for this address" ) ;
-
-
-
-uint256 vestingMonth ;
-uint256 vestingYear ;
-
-( vestingYear , vestingMonth , ) = timestampToDate(vesting.vestingTime) ;
-
-if (vestingMonth != 12) {
-    vestingMonth += 1;
-}
-else {
-    vestingMonth = 1;
-    vestingYear += 1;
-} 
-
-uint256 nextVestingTime = timestampFromDate(vestingYear, vestingMonth , 28) ; // Every month has 28. day
-nextVestingTime = getNextVestingDate(nextVestingTime);
-
-vesting.vestingTime = nextVestingTime;
-vesting.period -= 1 ;
-vesting.claimed += 1 ;
-
-_transfer(address(this), vestingAddress, vesting.amount);
-
-
-
-
-
-
-} 
-
-
-
-
-  function releaseVestedTokens(address beneficiary) public onlyOwner nonReentrant {
-        uint256 totalAmount = 0;
-
-            Vesting storage vesting = vestings[beneficiary];
-
-            while (block.timestamp >= getNextVestingDate(vesting.vestingTime)) {
-                uint256 toRelease = vesting.amount;
-                if (vesting.period == 0) {
-                    break;
-                }
-
-                totalAmount += toRelease;
-                vesting.vestingTime = getNextVestingDate(vesting.vestingTime);
-                vesting.period -= 1;
-            }
-
-
-        require(totalAmount > 0, "No vested tokens to release");
-        _transfer(address(this), beneficiary, totalAmount);
     }
 
+    //Pure functions
+    function  getNextVestingMonth (uint256 _addingMonth , uint256 _currentTimestamp) public pure returns (uint256 _timestamp) {
+        uint256 currentYear ;
+        uint256 currentMonth ;
+        uint256 currentDay ;
 
+        (currentYear, currentMonth , currentDay) = timestampToDate(_currentTimestamp) ;
+        uint256 nextYear = (_addingMonth / 12 ) + currentYear ;
+        uint256 nextMonth = (_addingMonth % 12 ) + currentMonth ;
 
+        if (nextMonth > 12 ) {
+            nextYear += 1 ;
+            nextMonth = nextMonth % 12 ;
+        }
 
-//Pure functions
+        uint256 nextTimestamp = timestampFromDate(nextYear , nextMonth , currentDay) ;
+        return nextTimestamp ;
+    }
+
     function _daysToDate(uint _days) internal pure returns (uint year, uint month, uint day) {
         int __days = int(_days);
 
@@ -217,7 +170,7 @@ _transfer(address(this), vestingAddress, vesting.amount);
         day = uint(_day);
     }
 
-        function _daysFromDate(uint year, uint month, uint day) internal pure returns (uint _days) {
+    function _daysFromDate(uint year, uint month, uint day) internal pure returns (uint _days) {
         require(year >= 1970);
         int _year = int(year);
         int _month = int(month);
@@ -233,7 +186,6 @@ _transfer(address(this), vestingAddress, vesting.amount);
         _days = uint(__days);
     }
 
-
     function timestampToDate(uint timestamp) public pure returns (uint year, uint month, uint day) {
         (year, month, day) = _daysToDate(timestamp / SECONDS_PER_DAY);
     }
@@ -242,22 +194,16 @@ _transfer(address(this), vestingAddress, vesting.amount);
         timestamp = _daysFromDate(year, month, day) * SECONDS_PER_DAY;
     }
 
-    function getDaysInMonth(uint256 month, uint256 year) private pure returns (uint256) {
-    if (month == 2) {
-        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-            return 29;
-        } else {
-            return 28;
-        }
-    } else if (month == 4 || month == 6 || month == 9 || month == 11) {
-        return 30;
-    } else {
-        return 31;
+    function getTotalRemainingVestingForAddress (address _address) public view returns (uint256) {
+        Vesting memory vesting = vestings[_address] ;
+        uint256 remainingPeriod = vesting.period ;
+        uint256 periodicAmount = vesting.amount ;
+        uint256 remainingVestingAmount = remainingPeriod * periodicAmount ;
+        return remainingVestingAmount ;
     }
-}
 
-// Blacklist related
-  function addToBlacklist(address user) public onlyOwner {
+    // Blacklist related
+    function addToBlacklist(address user) public onlyOwner {
         blacklist[user] = true;
     }
 
@@ -270,7 +216,6 @@ _transfer(address(this), vestingAddress, vesting.amount);
         require(!blacklist[to], "Token transfer not allowed: destination address is blacklisted");       
         super._beforeTokenTransfer(from, to, amount);
     }
-
 
 }
 

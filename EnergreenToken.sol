@@ -86,7 +86,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         });
 
         vestings[idoAddress] = Vesting({
-            vestingTime: getNextVestingMonth(0 , startDate), 
+            vestingTime: getNextVestingMonth(2 , startDate), 
             period: 200, 
             amount: 4600 * (10 ** 18),
             claimed: 0
@@ -111,7 +111,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     // VESTING LOCK RELEASE
     function releaseVesting (address vestingAddress) public onlyOwner nonReentrant {
 
-        Vesting storage vesting = vestings[vestingAddress] ; // memory olarak tutulup sonda eşitlenebilir
+        Vesting storage vesting = vestings[vestingAddress] ;
 
         require( block.timestamp >= vesting.vestingTime , "Vesting time is not now." ) ;
         require( vesting.period > 0 , "Vesting is over for this address" ) ;

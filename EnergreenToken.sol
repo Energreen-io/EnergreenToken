@@ -5,11 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
-
-    using SafeMath for uint256;
 
     uint256 public constant TOTAL_SUPPLY = 200000000 * (10 ** 18);
 
@@ -111,7 +108,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     // VESTING LOCK RELEASE
     function releaseVesting (address vestingAddress) public onlyOwner nonReentrant {
 
-        Vesting storage vesting = vestings[vestingAddress] ;
+        Vesting memory vesting = vestings[vestingAddress] ;
 
         require( block.timestamp >= vesting.vestingTime , "Vesting time is not now." ) ;
         require( vesting.period > 0 , "Vesting is over for this address" ) ;
@@ -128,6 +125,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         vesting.period -= 1 ;
         vesting.claimed += 1 ;
 
+        vestings[vestingAddress] = vesting ;
         _transfer(address(this), vestingAddress, vesting.amount);
 
     }

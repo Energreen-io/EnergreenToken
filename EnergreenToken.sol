@@ -1,4 +1,52 @@
 // SPDX-License-Identifier: MIT
+/*  
+                                                                              
+                                             .******,.                                            
+                                   &@@@@@@@@@@@@@@@@@@@@@@@@@@&                                 
+                             ,@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,                           
+                         *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.                       
+                      #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/                    
+                    @@@@@@@@@@@@@@@@@@@@@@@%.        .&@@@@@@@@@@@@@@@@@@@@@@@                  
+                 ,@@@@@@@@@@@@@@@@@@(                                                           
+               .@@@@@@@@@@@@@@@@                                                                
+              @@@@@@@@@@@@@@@.                                                                  
+             @@@@@@@@@@@@@@                                                                     
+           *@@@@@@@@@@@@@              *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@          
+          .@@@@@@@@@@@@%          /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@         
+          @@@@@@@@@@@@/         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        
+         @@@@@@@@@@@@&         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*       
+         @@@@@@@@@@@@          @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@       
+         @@@@@@@@@@@@                                                                           
+        *@@@@@@@@@@@(                                                                           
+        .@@@@@@@@@@@&                                                                           
+         @@@@@@@@@@@@          @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@       
+         @@@@@@@@@@@@,        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%       
+          @@@@@@@@@@@@         *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        
+          %@@@@@@@@@@@@          /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*        
+           @@@@@@@@@@@@@&            #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%         
+            &@@@@@@@@@@@@@,                                            .@@@@@@@@@@@@@*          
+             .@@@@@@@@@@@@@@/                                        ,@@@@@@@@@@@@@@            
+               @@@@@@@@@@@@@@@@.                                   @@@@@@@@@@@@@@@&             
+                 @@@@@@@@@@@@@@@@@@                            @@@@@@@@@@@@@@@@@@               
+                   @@@@@@@@@@@@@@@@@@@@@#                #@@@@@@@@@@@@@@@@@@@@@                 
+                     /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,                   
+                        /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,                      
+                            &@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%                          
+                                 &@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&                               
+                                         (@@@@@@@@@@@@@@(.                                      
+                                                                                                                     
+                                                                                           
+
+              ______  _   _   ______   _____     _____   _____   ______  ______  _   _ 
+             |  ____ | \ | | |  ____  |  __ \   / ____| |  __ \ |  ____ |  ____ | \ | |
+             | |__   |  \| | | |__    | |__) | | |  __  | |__)| | |__   | |__   |  \| |
+             |  __|  | . ` | |  __|   |  _  /  | | |_ | |  _  / |  __|  |  __|  | . ` |
+             | |____ | |\  | | |____  | | \ \  | |__| | | | \ \ | |____ | |____ | |\  |
+             |______ |_| \_| |______  |_|  \_\  \_____| |_|  \_||______ |______ |_| \_|
+                                                               
+                                                            
+@author : Baris Arya Cantepe        
+*/
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -8,13 +56,14 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
-    uint256 public constant TOTAL_SUPPLY = 200000000 * (10 ** 18);
+    uint256 public constant MAX_SUPPLY = 200000000 * (10 ** 18);
 
-    uint256 private constant INITIAL_STAKING = 110000000 * (10 ** 18);
+    uint256 private constant INITIAL_STAKING = 60000000 * (10 ** 18);
     uint256 private constant INITIAL_LIQUIDITY = 3000000 * (10 ** 18);
     uint256 private constant INITIAL_IDO = 80000 * (10 ** 18);
-    uint256 private constant INITIAL_PRIVATE_SALE_1 = 35000 * (10 ** 18);
+    uint256 private constant INITIAL_PRIVATE_SALE_1 = 35039350 * (10 ** 15);
     uint256 private constant INITIAL_PRIVATE_SALE_2 = 40000 * (10 ** 18);
+    uint256 private constant INITIAL_RESERVE = 75000000 * (10 ** 18);
 
     address public constant stakingAddress = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db ;
     address public constant liquidityAddress = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB ;
@@ -42,64 +91,58 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     mapping(address => Vesting) public vestings; 
     mapping(address => bool) public blacklist;
 
-    constructor( ) ERC20("ENERGREEN", "ENGRN") {
+    constructor( ) ERC20("ENERGREEN", "EGRN") {
 
         startDate = block.timestamp;
 
-        _mint(address(this), TOTAL_SUPPLY);
+        _mint(address(this), MAX_SUPPLY);
 
         _transfer(address(this), stakingAddress, INITIAL_STAKING);
         _transfer(address(this), liquidityAddress, INITIAL_LIQUIDITY);
         _transfer(address(this), idoAddress, INITIAL_IDO);
         _transfer(address(this), privateSale1Address, INITIAL_PRIVATE_SALE_1);
         _transfer(address(this), privateSale2Address, INITIAL_PRIVATE_SALE_2);
+        _transfer(address(this), reserveAddress, INITIAL_RESERVE);
 
         vestings[marketingAddress] = Vesting({
             vestingTime: getNextVestingMonth(1 , startDate) , 
-            period: 100, 
-            amount: 350000 * (10 ** 18),
-            claimed: 0
-        });
-
-        vestings[reserveAddress] = Vesting({
-            vestingTime: getNextVestingMonth(1 , startDate), 
-            period: 100, 
-            amount: 250000 * (10 ** 18),
+            period: 133, 
+            amount: 24812030075187 * (10 ** 10),
             claimed: 0
         });
 
         vestings[privateSale1Address] = Vesting({
-            vestingTime: getNextVestingMonth(10 , startDate), 
-            period: 12, 
-            amount: 55416666666666666666666,
+            vestingTime: getNextVestingMonth(9 , startDate), 
+            period: 13, 
+            amount: 512113576923076 * (10 ** 8),
             claimed: 0
         });
 
         vestings[privateSale2Address] = Vesting({
-            vestingTime: getNextVestingMonth(9 , startDate), 
-            period: 12, 
-            amount: 63333333333333333333333,
+            vestingTime: getNextVestingMonth(8 , startDate), 
+            period: 13, 
+            amount: 584615384615384 * (10 ** 10),
             claimed: 0
         });
 
         vestings[idoAddress] = Vesting({
-            vestingTime: getNextVestingMonth(2 , startDate), 
+            vestingTime: getNextVestingMonth(1 , startDate), 
             period: 200, 
             amount: 4600 * (10 ** 18),
             claimed: 0
         });
 
         vestings[teamAddress] = Vesting({
-            vestingTime: getNextVestingMonth(13 , startDate), 
-            period: 72, 
-            amount: 300000 * (10 ** 18),
+            vestingTime: getNextVestingMonth(12 , startDate), 
+            period: 96, 
+            amount: 208333333333333333333333,
             claimed: 0
         });
 
         vestings[advisorAddress] = Vesting({
-            vestingTime: getNextVestingMonth(7 , startDate), 
-            period: 30, 
-            amount: 270833333333333333333333 ,
+            vestingTime: getNextVestingMonth(12 , startDate), 
+            period: 48, 
+            amount: 135400270833333333333333 ,
             claimed: 0
         });
 

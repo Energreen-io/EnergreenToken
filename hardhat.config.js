@@ -11,8 +11,8 @@
         networks: {
           hardhat: {
            forking: {
-             url: `https://rpc.ankr.com/eth_goerli`,
-             blockNumber: 8939478
+             url: `https://polygon-testnet.public.blastapi.io`,
+             //blockNumber: 35177545 
            }
           },
           mainnet: {

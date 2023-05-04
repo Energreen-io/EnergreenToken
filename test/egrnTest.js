@@ -118,30 +118,6 @@ describe("EnergreenToken", function () {
 
     });
 
-    it("Timestamp changers", async function () {
-      //console.log("Reserve vesting amount:", (await egrn.vestings(await egrn.privateSale1Address())));
-      //let timestamp = (await egrn.vestings(await egrn.privateSale1Address())).vestingTime ;
-      //console.log("Reserve vesting timestamp:", timestamp);
-      //timestamp = Number( timestamp.toString()) * 1000 ;
-      //const date = new Date(timestamp);
-      //console.log("Reserve vesting time:", date.toUTCString());
-//
-      //console.log( "Date" , date.getUTCFullYear() ,( date.getUTCMonth() + 1 ) , date.getUTCDate() , date.getUTCHours() , date.getUTCMinutes() , date.getUTCSeconds() ) ;
-//
-      //// increase date by 1 UTC month
-      //
-      //date.setUTCMonth(date.getUTCMonth() + 1);
-      //console.log( "Date" , date.getUTCFullYear() , (date.getUTCMonth() + 1) , date.getUTCDate() , date.getUTCHours() , date.getUTCMinutes() , date.getUTCSeconds() ) ;
-//
-//
-      //// increase date by 1 week
-//
-      //date.setUTCDate(date.getUTCDate() + 7);
-      //console.log( "Date" , date.getUTCFullYear() , (date.getUTCMonth() + 1) , date.getUTCDate() , date.getUTCHours() , date.getUTCMinutes() , date.getUTCSeconds() ) ;
-
-      expect((await egrn.vestings(await egrn.reserveAddress())).period).to.equal(0);
-
-    });
   });
 
   describe("Blacklist", function () {

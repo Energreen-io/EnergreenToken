@@ -175,7 +175,21 @@ describe("EnergreenToken", function () {
       await expect(egrn.connect(owner).releaseVesting(await egrn.privateSale2Address())).to.be.revertedWith("Vesting time is not now.");
       await expect(egrn.connect(owner).releaseVesting(await egrn.idoAddress())).to.be.revertedWith("Vesting time is not now.");
     });
-  
+
+    it("Should remaining vestings be correct at first", async function () {
+
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.teamAddress())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.advisorAddress())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.marketingAddress())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.privateSale1Address())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.privateSale2Address())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.idoAddress())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.reserveAddress())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.stakingAddress())).to.be.equal(0);
+      expect(await egrn.connect(owner).getClaimedVestingCountForAddress(await egrn.liquidityAddress())).to.be.equal(0);
+
+    });
+
     it("Should set first vesting time cliffs correctly", async function () {
       const teamCliff = 12;
       const advisorCliff = 12;

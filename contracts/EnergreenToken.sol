@@ -85,7 +85,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         uint256 vestingTime;
         uint256 period;
         uint256 amount;
-        uint256 claimed;
+        uint256 totalVesting;
     }
 
     mapping(address => Vesting) public vestings; 
@@ -110,42 +110,42 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
             vestingTime: getNextVestingMonth(1 , startDate) , 
             period: 133, 
             amount: 248120300751879699248120, // Approximately 248,120 EGRN
-            claimed: 0
+            totalVesting: 133
         });
 
         vestings[privateSale1Address] = Vesting({
             vestingTime: getNextVestingMonth(9 , startDate), 
             period: 13, 
             amount: 51211357692307692307692, // Approximately 51,211 EGRN
-            claimed: 0
+            totalVesting: 13
         });
 
         vestings[privateSale2Address] = Vesting({
             vestingTime: getNextVestingMonth(8 , startDate), 
             period: 13, 
             amount: 58461538461538461538461, // Approximately 58,461 EGRN
-            claimed: 0
+            totalVesting: 13
         });
 
         vestings[idoAddress] = Vesting({
             vestingTime: getNextVestingMonth(1 , startDate), 
             period: 200, 
             amount: 4600 * (10 ** 18),
-            claimed: 0
+            totalVesting: 200
         });
 
         vestings[teamAddress] = Vesting({
             vestingTime: getNextVestingMonth(12 , startDate), 
             period: 96, 
             amount: 208333333333333333333333, // Approximately 208,333 EGRN
-            claimed: 0
+            totalVesting: 96
         });
 
         vestings[advisorAddress] = Vesting({
             vestingTime: getNextVestingMonth(12 , startDate), 
             period: 48, 
             amount: 135400270833333333333333 , // Approximately 135,400 EGRN
-            claimed: 0
+            totalVesting: 48
         });
 
     }
@@ -168,12 +168,11 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
         vesting.vestingTime = nextVestingTime;
         vesting.period -= 1 ;
-        vesting.claimed += 1 ;
 
         vestings[vestingAddress] = vesting ;
         _transfer(address(this), vestingAddress, vesting.amount);
 
-        emit VestingClaimed(vestingAddress, vesting.amount, vesting.claimed);
+        emit VestingClaimed(vestingAddress, vesting.amount,(vesting.totalVesting - vesting.period));
 
     }
 
@@ -239,8 +238,13 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         timestamp = _daysFromDate(year, month, day) * SECONDS_PER_DAY;
     }
 
+    // View functions
 
-    function getTotalRemainingVestingForAddress (address _address) public view returns (uint256) {
+    function getClaimedVestingCountForAddress (address _address) public view returns (uint256) {
+        return vestings[_address].totalVesting - vestings[_address].period ;
+    }
+
+    function getTotalRemainingVestingAmountsForAddress (address _address) public view returns (uint256) {
         Vesting memory vesting = vestings[_address] ;
         uint256 remainingPeriod = vesting.period ;
         uint256 periodicAmount = vesting.amount ;

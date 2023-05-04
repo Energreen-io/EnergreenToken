@@ -47,7 +47,7 @@
                                                             
 @author : Baris Arya Cantepe        
 */
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
@@ -65,15 +65,15 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     uint256 private constant INITIAL_PRIVATE_SALE_2 = 40000 * (10 ** 18);
     uint256 private constant INITIAL_RESERVE = 75000000 * (10 ** 18);
 
-    address public constant stakingAddress = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db ;
-    address public constant liquidityAddress = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB ;
-    address public constant idoAddress = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2 ;
-    address public constant privateSale1Address = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db ;
-    address public constant privateSale2Address = 0x01DD3a8ef7F2E6eb3721CA797b0C3bF47463843d ;
-    address public constant marketingAddress = 0x742d35Cc6634C0532925a3b844Bc454e4438f44e ;
-    address public constant reserveAddress = 0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B ;
-    address public constant teamAddress = 0xE853c56864A2ebe4576a807D26Fdc4A0adA51919 ;
-    address public constant advisorAddress = 0x1aE0EA34a72D944a8C7603FfB3eC30a6669E454C ;
+    address public constant stakingAddress = 0xe1C9E85A91f97090f27bE358D03E4Ad28f8F242A ; 
+    address public constant liquidityAddress = 0x656F4EAc864393d61362e24434f8Ad2987543aC3 ; 
+    address public constant idoAddress = 0x34EcE43178f23F908164651aB673ffbfc26b0b22 ; 
+    address public constant privateSale1Address = 0xFaC7c87D1777662909b7Bf7e4E7bc0922423229c ; 
+    address public constant privateSale2Address = 0x14530Dd3325CE7D035d231210CC4b2bF5b0ebE88 ; 
+    address public constant marketingAddress = 0x3aca898549cC4863beC8D95362Ecc4030a6ad346 ; 
+    address public constant reserveAddress = 0x66D9Bb5cC0D8B32C62C46Dfb7376031A497afe70 ; 
+    address public constant teamAddress = 0x7F4C6325b0690d98138229C1b2938886ffe10A65 ; 
+    address public constant advisorAddress = 0x9c137226d0D4c191F4A680F646dFEb381e7Acee4 ; 
 
     uint256 public startDate;
     uint constant SECONDS_PER_DAY = 24 * 60 * 60;
@@ -91,6 +91,8 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     mapping(address => Vesting) public vestings; 
     mapping(address => bool) public blacklist;
 
+    event VestingClaimed(address indexed beneficiary, uint256 amount , uint256 claimedPeriod);
+
     constructor( ) ERC20("ENERGREEN", "EGRN") {
 
         startDate = block.timestamp;
@@ -107,21 +109,21 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         vestings[marketingAddress] = Vesting({
             vestingTime: getNextVestingMonth(1 , startDate) , 
             period: 133, 
-            amount: 24812030075187 * (10 ** 10),
+            amount: 248120300751879699248120, // Approximately 248,120 EGRN
             claimed: 0
         });
 
         vestings[privateSale1Address] = Vesting({
             vestingTime: getNextVestingMonth(9 , startDate), 
             period: 13, 
-            amount: 512113576923076 * (10 ** 8),
+            amount: 51211357692307692307692, // Approximately 51,211 EGRN
             claimed: 0
         });
 
         vestings[privateSale2Address] = Vesting({
             vestingTime: getNextVestingMonth(8 , startDate), 
             period: 13, 
-            amount: 584615384615384 * (10 ** 10),
+            amount: 58461538461538461538461, // Approximately 58,461 EGRN
             claimed: 0
         });
 
@@ -135,14 +137,14 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         vestings[teamAddress] = Vesting({
             vestingTime: getNextVestingMonth(12 , startDate), 
             period: 96, 
-            amount: 208333333333333333333333,
+            amount: 208333333333333333333333, // Approximately 208,333 EGRN
             claimed: 0
         });
 
         vestings[advisorAddress] = Vesting({
             vestingTime: getNextVestingMonth(12 , startDate), 
             period: 48, 
-            amount: 135400270833333333333333 ,
+            amount: 135400270833333333333333 , // Approximately 135,400 EGRN
             claimed: 0
         });
 
@@ -170,6 +172,8 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
         vestings[vestingAddress] = vesting ;
         _transfer(address(this), vestingAddress, vesting.amount);
+
+        emit VestingClaimed(vestingAddress, vesting.amount, vesting.claimed);
 
     }
 
@@ -234,6 +238,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     function timestampFromDate(uint year, uint month, uint day) public pure returns (uint timestamp) {
         timestamp = _daysFromDate(year, month, day) * SECONDS_PER_DAY;
     }
+
 
     function getTotalRemainingVestingForAddress (address _address) public view returns (uint256) {
         Vesting memory vesting = vestings[_address] ;

@@ -97,6 +97,12 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
 
         startDate = block.timestamp;
 
+        uint256 _currentDay;
+        (, , _currentDay) = timestampToDate(startDate) ;
+        // releaseVesting function sets the new vesting time in next month as the same day of current month
+        // Constructor checks deploy day to block errors when estimating new vestings (Some months don't have 29. day or more.).
+        require(_currentDay < 29 , "This contract can not be deployed when the current day of month is bigger than 28.") ;
+
         _mint(address(this), MAX_SUPPLY);
 
         _transfer(address(this), stakingAddress, INITIAL_STAKING);

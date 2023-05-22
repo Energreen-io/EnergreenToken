@@ -1,5 +1,22 @@
 # Energreen Token
 
+**Contract Addresses**
+
+Energreen Token Mainnet: 0xDB8d6D3AC21e4efE3675BBB18514010AC9C5558F
+Energreen Token Mainnet Owner: 0xC85ac831488679D52eF3598d04B4f8f73cBa27Fa
+
+Energreen Token Sepolia: 0xDB8d6D3AC21e4efE3675BBB18514010AC9C5558F
+Energreen Token Sepolia Owner: 0xC85ac831488679D52eF3598d04B4f8f73cBa27Fa
+
+Energreen Claim PrivateSale1 Sepolia: 0x63A01A2714F2cea4152B0883706E248473FE85CC
+Energreen Claim PrivateSale1 Sepolia Signer: 0xc06A04CE9ffE8903a7B6D3271D82B184040BE426
+
+Energreen Claim PrivateSale2 Sepolia: 0x13894aB24ACa4b3b0489eef0e818E1230546FE0a
+Energreen Claim PrivateSale2 Sepolia Signer: 0xc06A04CE9ffE8903a7B6D3271D82B184040BE426
+
+Energreen Claim PublicSale Sepolia: 0x0553CeB6248a5dd5592B735DfCA56c6cF93e8967
+Energreen Claim PublicSale Sepolia Signer: 0xBA1B7d014BDae0d07Fe79227F56c19bb607C9486
+
 **Energreen Token (ENGRN)** is an ERC20 token built for the Ethereum network. It has a total supply of **200,000,000 ENGRN**, and it includes vesting schedules for various addresses. This token is used to facilitate transactions on the Energreen platform.
 
 ## Tokenomics

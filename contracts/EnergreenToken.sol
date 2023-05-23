@@ -75,6 +75,8 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     address public constant teamAddress = 0x7F4C6325b0690d98138229C1b2938886ffe10A65 ; 
     address public constant advisorAddress = 0x9c137226d0D4c191F4A680F646dFEb381e7Acee4 ; 
 
+    address public releaserAddress = 0x5299020821E252fD686F372EAFC06a57bA4B303c;
+
     uint256 public startDate;
     uint constant SECONDS_PER_DAY = 24 * 60 * 60;
     uint constant SECONDS_PER_HOUR = 60 * 60;
@@ -157,7 +159,7 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     }
 
     // VESTING LOCK RELEASE
-    function releaseVesting (address vestingAddress) public onlyOwner nonReentrant {
+    function releaseVesting (address vestingAddress) public releaserOrOwner nonReentrant {
 
         Vesting memory vesting = vestings[vestingAddress] ;
 
@@ -245,7 +247,6 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
     }
 
     // View functions
-
     function getClaimedVestingCountForAddress (address _address) public view returns (uint256) {
         return vestings[_address].totalVesting - vestings[_address].period ;
     }
@@ -256,6 +257,11 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         uint256 periodicAmount = vesting.amount ;
         uint256 remainingVestingAmount = remainingPeriod * periodicAmount ;
         return remainingVestingAmount ;
+    }
+
+    // Setter
+    function setReleaserAddress(address _releaserAddress) public onlyOwner{
+        releaserAddress = _releaserAddress;
     }
 
     // Blacklist related
@@ -271,6 +277,11 @@ contract EnergreenToken is ERC20,ERC20Burnable, Ownable , ReentrancyGuard {
         require(!blacklist[from], "Token transfer not allowed: source address is blacklisted");
         require(!blacklist[to], "Token transfer not allowed: destination address is blacklisted");       
         super._beforeTokenTransfer(from, to, amount);
+    }
+
+    modifier releaserOrOwner() {
+        require(owner() == _msgSender() || releaserAddress == _msgSender() , "You don't have permission to call release function.");
+        _;
     }
 
 }

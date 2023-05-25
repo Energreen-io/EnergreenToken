@@ -2,6 +2,8 @@
 
 **Contract Addresses**
 
+--------------------------------------  MAINNET ADDRESSES  ----------------------------------------------
+
 Energreen Token Mainnet: 0xDB8d6D3AC21e4efE3675BBB18514010AC9C5558F
 Energreen Token Mainnet Owner: 0xC85ac831488679D52eF3598d04B4f8f73cBa27Fa
 
@@ -13,6 +15,8 @@ Energreen Claim PrivateSale2 Signer: 0xc06A04CE9ffE8903a7B6D3271D82B184040BE426
 
 Energreen Claim PublicSale : 0x0553CeB6248a5dd5592B735DfCA56c6cF93e8967
 Energreen Claim PublicSale Signer: 0xBA1B7d014BDae0d07Fe79227F56c19bb607C9486
+
+--------------------------------------  SEPOLIA ADDRESSES  ----------------------------------------------
 
 Energreen Token Sepolia: 0xDB8d6D3AC21e4efE3675BBB18514010AC9C5558F
 Energreen Token Sepolia Owner: 0xC85ac831488679D52eF3598d04B4f8f73cBa27Fa

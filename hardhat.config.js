@@ -25,11 +25,11 @@
           },
           mainnet: {
             url: `https://eth.llamarpc.com`,
-              accounts: [`${PRIVATE_KEY}`]
+              //accounts: [`${PRIVATE_KEY}`]
           },
           fuji: {
             url: `https://api.avax-test.network/ext/bc/C/rpc`,
-              accounts: [`${PRIVATE_KEY}`]
+              //accounts: [`${PRIVATE_KEY}`]
           }
         }
     };
